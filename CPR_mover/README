@@ -1,0 +1,21 @@
+First connect the robot to the pc. clone the following repository in your ROS environment:
+    https://github.com/CPR-Robots/cpr_mover
+    https://github.com/CPR-Robots/cpr_rviz_plugin.git
+
+You probably will need to install some packages like peak_driver. You download the driver from here:
+    http://www.peak-system.com/PCAN-USB.199.0.html
+    http://www.peak-system.com/fileadmin/media/linux/index.htm
+    http://www.peak-system.com/fileadmin/media/linux/files/PCAN-Driver-Linux_UserMan_eng.pdf
+
+you also need libpopt-dev.
+hopefully after this your catkin will be compilable.
+
+Then do first:
+    roslaunch cpr_rviz_plugin cpr_mover4.launch
+
+And then do:
+    rosrun cpr_mover cpr_mover
+
+Then go to the script folder and run control_cpr.py. (You have had a controller set up before doing so
+and set the controller name in the config.ini)
+

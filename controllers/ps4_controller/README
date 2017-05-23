@@ -10,7 +10,7 @@ The command will print out the mounted address for the controller. In my case it
 Install https://github.com/ros-drivers/joystick_drivers in your ROS environment and do the following after running the roscore:
 
 	- rosparam set joy_node/dev "/dev/input/js6"
-	- rosrun joy joy_node
+	- rosrun joy joy_node _coalesce_interval:=0.1
 
 Then if you do:
 

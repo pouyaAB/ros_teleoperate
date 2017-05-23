@@ -21,6 +21,7 @@ class PS4Controller():
         pos = [axes[9], -axes[10], up_down]
         return pos
 
+
     def get_orientation(self, msg):
         axes = msg.axes
         buttons = msg.buttons
@@ -37,6 +38,16 @@ class PS4Controller():
         if self.NO_BUTTON_PUSHED and msg.buttons[1] == 1:
             self.NO_BUTTON_PUSHED = False
             return "gripper-toggle"
+        elif self.NO_BUTTON_PUSHED and msg.buttons[3] == 1:
+            self.NO_BUTTON_PUSHED = False
+            return "triangle"
+        elif self.NO_BUTTON_PUSHED and msg.buttons[2] == 1:
+            self.NO_BUTTON_PUSHED = False
+            return "circle"
+        elif self.NO_BUTTON_PUSHED and msg.buttons[0] == 1:
+            self.NO_BUTTON_PUSHED = False
+            return "square"
         else:
-            self.NO_BUTTON_PUSHED = True
+            if sum(msg.buttons) == 0:
+                self.NO_BUTTON_PUSHED = True
             return "undefined-action"
