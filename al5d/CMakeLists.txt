@@ -8,9 +8,8 @@ find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs trajectory_msgs std_m
 
 catkin_package(
    INCLUDE_DIRS include
-   CATKIN_DEPENDS roscpp
+   CATKIN_DEPENDS message_runtime
 )
-
 
 include_directories(include
   ${catkin_INCLUDE_DIRS}

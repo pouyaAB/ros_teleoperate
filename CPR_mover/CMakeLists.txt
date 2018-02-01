@@ -41,16 +41,19 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
+add_executable(cpr_ik src/cpr_IK.cpp)
+target_link_libraries(cpr_ik ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-install(PROGRAMS
+install(PROGRAMS cpr_ik
   scripts/cpr_mover_controller/control_cpr.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

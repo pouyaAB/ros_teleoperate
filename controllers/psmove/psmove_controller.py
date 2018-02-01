@@ -26,7 +26,8 @@ class PSmoveController():
         diff_pos[2] = -diff_pos[1]
         diff_pos[1] = temp
         self.previous_pos = msg.data[0:3]
-        return diff_pos
+
+        return np.sign(diff_pos)
 
     def get_position(self, msg):
         curr_pos_command = msg.data[0:3]
@@ -36,7 +37,7 @@ class PSmoveController():
         pos[2] = pos[1]
         pos[1] = temp
 
-        pos[0] = (pos[0]/self.X_SCALE) * 2 - 1
+        pos[0] = (pos[0] / self.X_SCALE) * 2 - 1
         pos[1] = ((pos[1] - 8) / self.R_SCALE) * 2 - 1 + 0.31
         pos[2] = (pos[2] / self.Y_SCALE) * 2 - 1 - 0.49
         return pos
@@ -50,7 +51,7 @@ class PSmoveController():
         diff_orientation = np.multiply(np.subtract(curr_orientation_command,
                                                    self.previous_orientation), 40.0)
         self.previous_orientation = msg.data[3:6]
-        return diff_orientation
+        return [0.0, 0.0, 0.0]
 
     def get_button(self, msg):
         if msg.data[6] == self.X_BUTTON_CODE:

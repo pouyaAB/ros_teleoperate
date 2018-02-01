@@ -4,9 +4,17 @@ project(ros_teleoperate)
 SET(CMAKE_BUILD_TYPE Release)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3 -O3 -DNDEBUG")
-find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs trajectory_msgs std_msgs geometry_msgs rospy)
+find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs trajectory_msgs std_msgs geometry_msgs rospy message_generation)
 
+add_message_files(
+    FILES
+    al5d_state.msg
+)
 
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 catkin_package(
    INCLUDE_DIRS include
@@ -15,6 +23,7 @@ catkin_package(
 
 
 include_directories(include
+  CPR_mover/include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -31,10 +40,15 @@ else()
 endif()
 
 
+add_executable(cpr_ik CPR_mover/src/cpr_ik.cpp
+                      CPR_mover/src/cpr_KinematicMover.cpp
+                      CPR_mover/src/cpr_Matrix4.cpp)
 add_executable(leap_al5d al5d/src/leap_al5d.cpp)
-target_link_libraries(leap_al5d Leap ${catkin_LIBRARIES})
 
-install(TARGETS leap_al5d
+target_link_libraries(leap_al5d Leap ${catkin_LIBRARIES})
+target_link_libraries(cpr_ik ${catkin_LIBRARIES})
+
+install(TARGETS leap_al5d cpr_ik
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
@@ -44,6 +58,6 @@ install(FILES
   DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
-install(DIRECTORY include/
+install(DIRECTORY include/ CPR_mover/include/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )

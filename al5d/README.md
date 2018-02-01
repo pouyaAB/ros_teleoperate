@@ -9,7 +9,7 @@ compile by issuing
 
 ###usage
 Program needs to be run with superuser permissions.
-For correct usage, Leap motioon sensor and robotic hand should be connected to your computer, afterwards the program could be run.
+For correct usage, Leap motion sensor and robotic hand should be connected to your computer, afterwards the program could be run.
 After launching the robotic hand is moved to central position and the sensor detects hand motion
 until the enter key is pressed.
 Program has built-in help which can be displayed by -h option.

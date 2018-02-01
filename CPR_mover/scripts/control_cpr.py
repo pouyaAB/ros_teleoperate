@@ -132,7 +132,7 @@ if controller_type == "ps4_controller":
     rospy.Subscriber(config["channels"][controller_type], sensor_msgs.msg.Joy, command_received)
     controller = PS4Controller()  # default controller
 
-velocity_topic = rospy.Publisher('/CPRMoverJointVel',
+velocity_topic = rospy.Publisher('/cpr_vel_cartesian',
                                  sensor_msgs.msg.JointState, queue_size=100)
 
 rospy.Subscriber('/CPRMoverErrorCodes', std_msgs.msg.String, status_report)

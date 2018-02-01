@@ -20,6 +20,7 @@
 #include "Leap.h"
 #include "ros/ros.h"
 #include "std_msgs/Float32MultiArray.h"
+#include "ros_teleoperate/al5d_state.h"
 /* ----------------------------------------------------------------------------------------- */
 using namespace Leap;
 using namespace std;
@@ -179,6 +180,9 @@ int Robot_arm::check_ranges(const int * ranges, int position)
 void Robot_arm::move(int * new_pos)
 {
   int i;
+  new_pos[BASE] += 50;
+  new_pos[SHOULDER] -= 90;
+  new_pos[ELBOW] += 68;
 
   for(i = 0; i < num_servos; i++) {
     if(position[i] != new_pos[i]) {       // detected move change
@@ -231,7 +235,7 @@ class CListener : public Listener {
     virtual void onExit(const Controller&);
     virtual void onFrame(const Controller&);
     void commandRobot(const std_msgs::Float32MultiArray&);
-    void commandRobotUsingIK(float, float, float, float, float, float, float, float);
+    void commandRobotUsingIK(float, float, float, float, float, float);
     virtual void onFocusGained(const Controller&);
     virtual void onFocusLost(const Controller&);
     virtual void onDeviceChange(const Controller&);
@@ -347,12 +351,12 @@ void CListener::onFrame(const Controller& controller) {
     float wrist_degree = roll;
     float wrist_rotate_degree = direction_yaw;
 
-    commandRobotUsingIK(x, y, z, wrist_degree, wrist_rotate_degree, open, reward, 0);
+    commandRobotUsingIK(x, y, z, wrist_degree, wrist_rotate_degree, open);
   }
 
 }
 
-void CListener::commandRobotUsingIK(float x, float y, float z, float wrist_degree, float wrist_rotate_degree, float open, float reward, float human) {
+void CListener::commandRobotUsingIK(float x, float y, float z, float wrist_degree, float wrist_rotate_degree, float open) {
 
       // cout <<  "\tx: " << x <<  "\ty: " << y <<  "\tz: " << z << endl;
       // cout <<  "\troll: " << roll <<  "\tpitch: " << pitch <<  "\tyaw: " << yaw << endl;
@@ -402,18 +406,20 @@ void CListener::commandRobotUsingIK(float x, float y, float z, float wrist_degre
       // Publish hand information on ROS topic
       if(ros::ok() && !isnan(shl_angle_r) && !isinf(shl_angle_r) && new_pos[0] > 0 && new_pos[1] > 0 && new_pos[2] > 0 && new_pos[3] > 0 && new_pos[4] > 0
           && new_pos[0] < 4000 && new_pos[1] < 4000 && new_pos[2] < 4000 && new_pos[3] < 4000 && new_pos[4] < 4000) {
-        vector<float> vec1 = {reward, human, open, new_pos[0]/float(2000), new_pos[1]/float(2000), new_pos[2]/float(2000), new_pos[3]/float(2000), new_pos[4]/float(2000), 0};
-        std_msgs::Float32MultiArray msg;
+        vector<float> vec1 = {open, new_pos[0]/float(2000), new_pos[1]/float(2000), new_pos[2]/float(2000), new_pos[3]/float(2000), new_pos[4]/float(2000), 0};
+        ros_teleoperate::al5d_state msg;
 
         // set up dimensions
-        msg.layout.dim.push_back(std_msgs::MultiArrayDimension());
-        msg.layout.dim[0].size = vec1.size();
-        msg.layout.dim[0].stride = 1;
-        msg.layout.dim[0].label = "demonstration_info"; // or whatever name you typically use to index vec1
+        msg.data.layout.dim.push_back(std_msgs::MultiArrayDimension());
+        msg.data.layout.dim[0].size = vec1.size();
+        msg.data.layout.dim[0].stride = 1;
+        msg.data.layout.dim[0].label = "demonstration_info"; // or whatever name you typically use to index vec1
 
         // copy in the data
-        msg.data.clear();
-        msg.data.insert(msg.data.end(), vec1.begin(), vec1.end());
+        msg.header.stamp = ros::Time::now();
+        msg.header.frame_id = "/world";
+        msg.data.data.clear();
+        msg.data.data.insert(msg.data.data.end(), vec1.begin(), vec1.end());
         hand_pub.publish(msg);
         ros::spinOnce();
 
@@ -587,15 +593,13 @@ void commandCallback(const std_msgs::Float32MultiArray& msg) {
 }
 
 void moveInfoCallback(const std_msgs::Float32MultiArray& msg) {
-  float x = msg.data[8];
-  float y = msg.data[9];
-  float z = msg.data[10];
-  float wrist_degree = msg.data[11];
-  float wrist_rotate_degree = msg.data[12];
-  float open = msg.data[13];
-  float reward = msg.data[14];
-  float human = msg.data[15];
-  listener.commandRobotUsingIK(x, y, z, wrist_degree, wrist_rotate_degree, open, reward, human);
+  float x = msg.data[0];
+  float y = msg.data[1];
+  float z = msg.data[2];
+  float wrist_degree = msg.data[3];
+  float wrist_rotate_degree = msg.data[4];
+  float open = msg.data[5];
+  listener.commandRobotUsingIK(x, y, z, wrist_degree, wrist_rotate_degree, open);
 }
 
 /* ----------------------------------------------------------------------------------------- */
@@ -626,7 +630,7 @@ int main(int argc, char ** argv)
   ros::Subscriber command_sub;
   ros::Subscriber move_info_sub;
   // Have the sample listener receive events from the controller
-  ros::Publisher hand_pub = n.advertise<std_msgs::Float32MultiArray>("leap_al5d_info", 1000);
+  ros::Publisher hand_pub = n.advertise<ros_teleoperate::al5d_state>("leap_al5d_info", 1000);
 
   listener.set_ros_publisher(hand_pub);
   command_sub = n.subscribe("robot_command", 1000, commandCallback);
