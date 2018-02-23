@@ -22,7 +22,6 @@ import configparser
 from controllers.psmove.psmove_controller import PSmoveController
 from controllers.ps4_controller.ps4_controller import PS4Controller
 
-
 global_config = configparser.ConfigParser()
 global_config.read('../conf.ini')
 
@@ -60,7 +59,9 @@ class RecordDemonstrations(object):
         self.task_description = {
             5001: 'Picking Up Something',
             5002: 'Pushing something from left to right',
-            5003: 'Moving something closer to something'
+            5003: 'Moving something closer to something',
+            5004: 'Putting something into something',
+            5005: 'taking something out of something'
         }
 
         rospy.Subscriber("/leap_al5d_info", al5d_state, self.leap_al5d_callback)

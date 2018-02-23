@@ -13,3 +13,6 @@ For correct usage, Leap motion sensor and robotic hand should be connected to yo
 After launching the robotic hand is moved to central position and the sensor detects hand motion
 until the enter key is pressed.
 Program has built-in help which can be displayed by -h option.
+
+You may need to use this command to be able to access the robot:
+    - sudo chmod a+rw /dev/ttyUSB0

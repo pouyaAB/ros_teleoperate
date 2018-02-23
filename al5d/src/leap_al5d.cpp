@@ -450,9 +450,26 @@ void CListener::commandRobot(const std_msgs::Float32MultiArray& msg) {
   new_pos[WRIST] = int(msg.data[3] * 2000);
   new_pos[WRIST_ROTATE] = int(msg.data[4] * 2000);
   new_pos[GRIPPER] = Robot_arm::ranges[GRIPPER][MAX] - int( msg.data[5] * 1400);
-  // float bas_angle_r = (Robot_arm::ranges[BASE][CENTER] - new_pos[BASE] ) / 180.0 * M_PI / 11.11;
-  // new_pos[WRIST_ROTATE] = int(Robot_arm::ranges[WRIST_ROTATE][CENTER]) + int(( bas_angle_r * 180.0 / M_PI) * 11.11 );
-  rarm.move(new_pos);
+   vector<float> vec1 = {msg.data[5], new_pos[0]/float(2000), new_pos[1]/float(2000), new_pos[2]/float(2000), new_pos[3]/float(2000), new_pos[4]/float(2000), 0};
+    ros_teleoperate::al5d_state msg1;
+
+    // set up dimensions
+    msg1.data.layout.dim.push_back(std_msgs::MultiArrayDimension());
+    msg1.data.layout.dim[0].size = vec1.size();
+    msg1.data.layout.dim[0].stride = 1;
+    msg1.data.layout.dim[0].label = "demonstration_info"; // or whatever name you typically use to index vec1
+
+    // copy in the data
+    msg1.header.stamp = ros::Time::now();
+    msg1.header.frame_id = "/world";
+    msg1.data.data.clear();
+    msg1.data.data.insert(msg1.data.data.end(), vec1.begin(), vec1.end());
+    hand_pub.publish(msg1);
+
+
+      // float bas_angle_r = (Robot_arm::ranges[BASE][CENTER] - new_pos[BASE] ) / 180.0 * M_PI / 11.11;
+      // new_pos[WRIST_ROTATE] = int(Robot_arm::ranges[WRIST_ROTATE][CENTER]) + int(( bas_angle_r * 180.0 / M_PI) * 11.11 );
+      rarm.move(new_pos);
 }
 /* ----------------------------------------------------------------------------------------- */
 void CListener::onFocusGained(const Controller& controller) {
@@ -588,8 +605,8 @@ void play(int infile)
 
 CListener listener;
 
-void commandCallback(const std_msgs::Float32MultiArray& msg) {
-  listener.commandRobot(msg);
+void commandCallback(const std_msgs::Float32MultiArray& msg1) {
+  listener.commandRobot(msg1);
 }
 
 void moveInfoCallback(const std_msgs::Float32MultiArray& msg) {
@@ -669,3 +686,6 @@ int main(int argc, char ** argv)
   }
   return 0;
 }
+
+
+
